@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>English Bible Class</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  background:#f7f5f0;color:#292724;line-height:1.5
+}
+a{text-decoration:none;color:inherit}
+.page{max-width:1050px;margin:auto;padding:28px 18px 60px}
+
+/* Hero */
+.hero{
+  position:relative;overflow:hidden;background:#252525;color:#fff;
+  border-radius:28px;padding:44px 30px 40px;min-height:330px;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  box-shadow:0 12px 35px rgba(0,0,0,.08)
+}
+.hero:before{
+  content:"";position:absolute;width:270px;height:270px;
+  border:1px solid rgba(255,255,255,.15);border-radius:50%;
+  right:-70px;top:-80px
+}
+.hero:after{
+  content:"✦";position:absolute;right:54px;top:42px;
+  font-size:42px;color:rgba(255,255,255,.28)
+}
+.eyebrow{
+  font-size:12px;letter-spacing:2.5px;text-transform:uppercase;
+  color:#d8c9a8;font-weight:800;margin-bottom:10px
+}
+h1{margin:0;font-size:clamp(44px,8vw,72px);line-height:.98;letter-spacing:-2.5px}
+.hero p{margin:18px 0 0;max-width:650px;color:#ddd;font-size:15px}
+
+/* Intro */
+.intro{display:grid;grid-template-columns:1.4fr .8fr;gap:14px;margin:18px 0 30px}
+.panel{background:#fff;border:1px solid #e5e0d7;border-radius:18px;padding:20px}
+.panel h2{margin:0 0 8px;font-size:20px}
+.panel p{margin:0;color:#6f6a62;font-size:14px}
+.quote{font-family:Georgia,serif;font-size:18px!important;color:#3f3a34!important;line-height:1.45}
+.quote span{display:block;margin-top:8px;font-size:12px;color:#9a9388}
+
+/* Section */
+.section-head{
+  display:flex;justify-content:space-between;align-items:end;
+  margin:30px 2px 12px
+}
+.section-title{font-size:21px;font-weight:800;letter-spacing:-.3px}
+.small{font-size:12px;color:#918b82}
+
+/* Activities */
+.resources{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.resource{
+  background:#fff;border:1px solid #e5e0d7;border-radius:18px;padding:18px;
+  min-height:175px;display:flex;flex-direction:column;justify-content:space-between
+}
+.resource .emoji{font-size:27px}
+.resource h3{margin:8px 0 4px;font-size:16px}
+.resource p{margin:0;color:#777168;font-size:12px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  margin-top:15px;min-height:42px;padding:9px 12px;border-radius:10px;
+  background:#292724;color:#fff;font-size:12px;font-weight:800
+}
+.btn.disabled{background:#eeeae2;color:#aaa39a}
+
+/* Footer */
+footer{
+  margin-top:34px;padding:22px 4px 0;border-top:1px solid #ddd8cf;
+  text-align:center;color:#999187;font-size:12px
+}
+footer strong{color:#5e584f}
+
+/* Mobile */
+@media(max-width:650px){
+  .page{padding:14px 12px 40px}
+  .hero{border-radius:22px;padding:30px 22px 27px;min-height:320px}
+  .hero:after{right:27px;top:28px}
+  h1{font-size:50px;letter-spacing:-2px}
+  .intro{grid-template-columns:1fr;margin-bottom:24px}
+  .resources{grid-template-columns:1fr}
+  .resource{min-height:160px}
+}
+</style>
+</head>
+
+<body>
+<div class="page">
+
+  <section class="hero">
+    <div class="eyebrow">Learn · Explore · Grow</div>
+    <h1>English<br>Bible Class</h1>
+    <p>
+      A space for learning English, reading God's Word,
+      asking questions, playing games, and growing together.
+    </p>
+  </section>
+
+  <section class="intro">
+    <div class="panel">
+      <h2>👋 Welcome!</h2>
+      <p>
+        This is our English Bible Class space.
+        Here you'll find our lessons, games, activities, worksheets,
+        and other resources we use together in class.
+      </p>
+    </div>
+    <div class="panel">
+      <p class="quote">
+        “Let the word of Christ dwell in you richly.”
+        <span>— Colossians 3:16</span>
+      </p>
+    </div>
+  </section>
+
+  <div class="section-head">
+    <div>
+      <div class="section-title">🎮 Class Activities</div>
+      <div class="small">Games and interactive activities</div>
+    </div>
+  </div>
+
+  <section class="resources">
+
+    <div class="resource">
+      <div>
+        <div class="emoji">🍽️</div>
+        <h3>Ultimate Shopping Challenge</h3>
+        <p>
+          You have $1,000,000, but you can choose only 6 things.
+          What matters most to you?
+        </p>
+      </div>
+      <a class="btn" href="ultimate-shopping-challenge/">PLAY GAME →</a>
+    </div>
+
+    <div class="resource">
+      <div>
+        <div class="emoji">💭</div>
+        <h3>What's in My Mind?</h3>
+        <p>
+          Think about the things that fill your mind
+          and the thoughts you choose to keep.
+        </p>
+      </div>
+      <span class="btn disabled">COMING SOON</span>
+    </div>
+
+    <div class="resource">
+      <div>
+        <div class="emoji">🏠</div>
+        <h3>My Heart's Home</h3>
+        <p>
+          Draw, decorate, and explore the rooms of your heart.
+        </p>
+      </div>
+      <span class="btn disabled">COMING SOON</span>
+    </div>
+
+    <div class="resource">
+      <div>
+        <div class="emoji">📚</div>
+        <h3>Vocabulary</h3>
+        <p>
+          Learn useful English words and expressions from our lessons.
+        </p>
+      </div>
+      <span class="btn disabled">COMING SOON</span>
+    </div>
+
+    <div class="resource">
+      <div>
+        <div class="emoji">✏️</div>
+        <h3>Worksheets</h3>
+        <p>
+          Grammar, sentence practice, reflection, and discussion sheets.
+        </p>
+      </div>
+      <span class="btn disabled">COMING SOON</span>
+    </div>
+
+    <div class="resource">
+      <div>
+        <div class="emoji">🎵</div>
+        <h3>Class Resources</h3>
+        <p>
+          Opening songs, prayers, Bible verses, and other class materials.
+        </p>
+      </div>
+      <span class="btn disabled">COMING SOON</span>
+    </div>
+
+  </section>
+
+  <footer>
+    <strong>English Bible Class</strong> · Learn English · Read God's Word · Grow Together
+  </footer>
+
+</div>
+</body>
+</html>
