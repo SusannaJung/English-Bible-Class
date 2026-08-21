@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Ultimate Shopping Challenge</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#f4f4f4;color:#222}
+body{overflow-x:hidden}
+header{background:#fff;border-bottom:1px solid #ddd;padding:16px;position:sticky;top:0;z-index:20}
+h1{font-size:21px;line-height:1.25;margin:0 0 6px}
+.sub{font-size:14px;line-height:1.45;color:#666}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.stat{background:#111;color:#fff;border-radius:12px;padding:10px 12px;font-weight:700}
+.stat-label{font-size:12px;color:#ccc}
+.stat strong{display:block;font-size:22px;margin-top:2px}
+main{width:100%;max-width:1050px;margin:0 auto;padding:16px}
+.section{font-size:19px;font-weight:800;margin:8px 0}
+.hint{font-size:14px;line-height:1.5;color:#666;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.card{background:#fff;border:1px solid #ddd;border-radius:13px;padding:12px;display:grid;grid-template-columns:38px 1fr;gap:9px;min-width:0}
+.card.chosen{border:2px solid #111;padding:11px}
+.icon{font-size:28px;line-height:1}
+.name{font-size:15px;font-weight:800;line-height:1.25}
+.desc{font-size:12px;line-height:1.35;color:#777;margin-top:3px}
+.price{font-size:13px;font-weight:800;margin-top:5px}
+.controls{grid-column:1/-1;display:grid;grid-template-columns:1fr 42px 1fr;gap:7px;align-items:center;margin-top:4px}
+button{min-height:42px;border:0;border-radius:9px;font-size:18px;font-weight:800;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.buy{background:#111;color:#fff}.sell{background:#e8e8e8;color:#222}
+.buy:disabled,.sell:disabled{opacity:.25}
+.qty{text-align:center;font-size:17px;font-weight:800}
+.cart{margin:18px 0 8px;background:#fff;border:1px solid #ddd;border-radius:13px;padding:15px}
+.cart-title{font-size:17px;font-weight:800}
+#cart{margin-top:8px;font-size:14px;line-height:1.7}
+.warning{margin-top:12px;background:#f0f0f0;border-radius:9px;padding:10px;font-size:13px;line-height:1.4}
+.reset{margin-top:12px;background:#fff;border:1px solid #aaa;font-size:14px;padding:10px 14px;min-height:40px}
+@media(max-width:560px){
+  .grid{grid-template-columns:1fr}
+  .card{grid-template-columns:44px 1fr;gap:10px;padding:13px}
+  .card.chosen{padding:12px}
+  .icon{font-size:31px}
+  .name{font-size:16px}
+  .desc{font-size:13px}
+  .price{font-size:14px}
+  .controls{grid-template-columns:1fr 52px 1fr;gap:8px}
+  button{min-height:48px;font-size:20px}
+  .qty{font-size:18px}
+}
+@media(min-width:900px){
+  header{padding:18px calc((100% - 1018px)/2)}
+  main{padding:20px}
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+</style>
+</head>
+
+<body>
+<header>
+  <h1>🍽️ Ultimate Shopping Challenge</h1>
+  <div class="sub">
+    You have <b>$1,000,000</b> — but you can choose only <b>6 things</b>.<br>
+    Choose carefully. You can't have everything.
+  </div>
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-label">💰 Money Left</span>
+      <strong id="money">$1,000,000</strong>
+    </div>
+    <div class="stat">
+      <span class="stat-label">🛒 Choices Left</span>
+      <strong id="choices">6</strong>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="section">🛍️ BUILD YOUR LIFE</div>
+  <div class="hint">There are no right answers. Pick the things that matter most to you.</div>
+  <div id="grid" class="grid"></div>
+
+  <div class="cart">
+    <div class="cart-title">🛒 My 6 Choices</div>
+    <div id="cart">Nothing yet!</div>
+    <div id="warning" class="warning">You have 6 choices. What matters most to you?</div>
+    <button class="reset" onclick="resetGame()">Reset Game</button>
+  </div>
+</main>
+
+<script>
+const BUDGET = 1000000;
+const MAX_CHOICES = 6;
+
+const items = [
+["🏝️","Private Island","Own your own island and never worry about money again.",250000],
+["🏠","Dream Home","A beautiful house in the place you've always dreamed of.",200000],
+["🚗","Dream Car","The car you've wanted for years.",100000],
+["✈️","Travel the World","Visit every country on your bucket list.",80000],
+["🎓","Dream University","Pay for the best education you can get.",120000],
+["💼","Dream Career","Get the training and opportunities to pursue your dream job.",100000],
+["💰","Never Worry About Money","Put enough money aside so finances are never a problem.",300000],
+["📱","Latest Phone Forever","Always have the newest phone.",10000],
+["🎮","Gaming Paradise","Build the ultimate gaming room.",30000],
+["👟","Luxury Wardrobe","Buy all the clothes, shoes and bags you want.",25000],
+["🎤","Become Famous","Millions of people know your name.",150000],
+["📸","10 Million Followers","Become a huge social-media creator.",120000],
+["🏆","Become the Best","Become number one at your sport, hobby or talent.",150000],
+["❤️","Find Your People","Build a life surrounded by loyal, loving friends.",70000],
+["💍","Perfect Relationship","Have the romantic relationship you've always dreamed of.",70000],
+["👨‍👩‍👧","Family Dream","Give your family a beautiful home and everything they need.",150000],
+["🏖️","Family Vacation","Take your whole family on an unforgettable trip.",40000],
+["❤️‍🩹","Change Someone's Life","Pay for someone's education, housing or fresh start.",100000],
+["🍚","Feed 1,000 Families","Provide food and basic needs for people in need.",50000],
+["⛪","Support Your Church","Give generously to help ministry and people around you.",60000],
+["🌍","Build a School","Help children who don't have access to good education.",150000],
+["🩺","Fund Medical Care","Help people receive treatment they cannot afford.",100000],
+["🕊️","One Year to Serve","Take a year away from normal life to serve others.",100000],
+["⏰","More Time With Family","Change your lifestyle so you can spend much more time with people you love.",120000],
+["🙏","Grow Closer to God","Spend a year focused on prayer, Scripture and knowing God.",80000],
+["🤝","Life of Service","Build your life around regularly helping other people.",50000],
+["🌱","Start Something Meaningful","Start a project or organization that helps others.",100000],
+["😎","Total Freedom","Have enough money to quit any job and do whatever you want.",300000],
+["👑","Be Respected","Become highly respected and admired by everyone around you.",150000],
+["🔥","Make a Difference","Fund a big project that could change your community.",150000],
+["🧳","Live Anywhere","Have homes in several countries and live wherever you want.",200000],
+["🎬","Leave a Legacy","Create something that people will remember after you're gone.",100000],
+["🏆","Legacy Fund","Put money into a cause you want to continue after you're gone.",150000],
+["🚀","Go to Space","Take a once-in-a-lifetime trip into space.",120000]
+];
+
+let qty = Array(items.length).fill(0);
+
+const fmt = n => "$" + n.toLocaleString();
+
+function choices(){
+  return qty.reduce((a,b) => a+b, 0);
+}
+
+function total(){
+  return items.reduce((s,x,i) => s + x[3] * qty[i], 0);
+}
+
+function render(){
+  const used = choices();
+  const spent = total();
+
+  document.getElementById("grid").innerHTML = items.map((x,i) => {
+    const canBuy = used < MAX_CHOICES && spent + x[3] <= BUDGET;
+
+    return `
+      <div class="card ${qty[i] ? "chosen" : ""}">
+        <div class="icon">${x[0]}</div>
+        <div>
+          <div class="name">${x[1]}</div>
+          <div class="desc">${x[2]}</div>
+          <div class="price">${fmt(x[3])}</div>
+        </div>
+        <div class="controls">
+          <button class="sell" onclick="chg(${i},-1)" ${qty[i] ? "" : "disabled"} aria-label="Remove">−</button>
+          <span class="qty">${qty[i]}</span>
+          <button class="buy" onclick="chg(${i},1)" ${canBuy ? "" : "disabled"} aria-label="Choose">+</button>
+        </div>
+      </div>`;
+  }).join("");
+
+  document.getElementById("money").textContent = fmt(BUDGET - spent);
+  document.getElementById("choices").textContent = MAX_CHOICES - used;
+
+  const selected = items
+    .map((x,i) => qty[i] ? `${x[0]} <b>${x[1]}</b>` : "")
+    .filter(Boolean);
+
+  document.getElementById("cart").innerHTML =
+    selected.join("<br>") || "Nothing yet!";
+
+  let msg;
+  if(used === 0){
+    msg = "You have 6 choices. What matters most to you?";
+  }else if(used < MAX_CHOICES){
+    const left = MAX_CHOICES - used;
+    msg = `You have ${left} choice${left === 1 ? "" : "s"} left. What will you choose next?`;
+  }else{
+    msg = "🎯 All 6 choices are used! Look at your list. What does it say about you?";
+  }
+
+  document.getElementById("warning").textContent = msg;
+}
+
+function chg(i,d){
+  if(d > 0 && (choices() >= MAX_CHOICES || total() + items[i][3] > BUDGET)) return;
+  qty[i] = Math.max(0, qty[i] + d);
+  render();
+}
+
+function resetGame(){
+  qty = Array(items.length).fill(0);
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
