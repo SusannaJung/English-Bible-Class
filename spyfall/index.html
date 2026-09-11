@@ -29,6 +29,9 @@ button,input{font:inherit}button{border:0;cursor:pointer}
 .roleIcon{font-size:78px}.roleTitle{font-size:29px;font-weight:1000;margin-top:8px}
 .roleWord{font-size:25px;font-weight:950;margin-top:4px}
 .small{font-size:12px;color:var(--muted);line-height:1.5}
+.help{background:#20253a;border:1px solid var(--line);border-radius:18px;padding:14px 15px;margin-top:12px}
+.helpTitle{font-weight:950;margin-bottom:8px}
+.helpList{display:grid;gap:6px;color:#dfe3f1;font-size:13px;line-height:1.45}
 .roundbar{display:flex;gap:8px;align-items:center;justify-content:space-between}
 .tag{font-size:12px;padding:7px 10px;border-radius:999px;background:#242840;color:#d9dded}
 .rules{display:grid;gap:8px;margin-top:12px}.rule{padding:11px 12px;background:#20253a;border-radius:14px;color:#dfe2ef}
@@ -90,9 +93,20 @@ button,input{font:inherit}button{border:0;cursor:pointer}
       <div class="roleWord" id="roleWord"></div>
       <p class="sub" id="roleSub"></p>
     </div>
-    <button class="secondary" onclick="hideRole()">HIDE MY ROLE</button>
-    <div style="height:8px"></div>
-    <button class="primary" onclick="show('lobby')">BACK TO LOBBY</button>
+
+    <div id="questionHelp" class="help">
+      <div class="helpTitle">💬 Example Questions</div>
+      <div class="helpList">
+        <div>• Do you come here often?</div>
+        <div>• Would you come here alone?</div>
+        <div>• Who do you usually come with?</div>
+        <div>• What do you usually do here?</div>
+        <div>• What do you usually bring?</div>
+        <div>• Is it usually crowded?</div>
+        <div>• Would you want to stay here for a long time?</div>
+        <div>• When do you usually come here?</div>
+      </div>
+    </div>
   </section>
 </div>
 
@@ -137,7 +151,13 @@ function createRoom(){
  });
 }
 function broadcast(m){Object.values(hostConns).forEach(c=>{if(c.open)c.send(m);});}
-function broadcastState(){broadcast({type:"state",players});renderPlayers("hostPlayers");document.getElementById("startBtn").disabled=Object.keys(players).length<3;}
+function broadcastState(){
+ broadcast({type:"state",players});
+ renderPlayers("hostPlayers");
+ const ready=Object.keys(players).length>=3;
+ document.getElementById("startBtn").disabled=!ready;
+ document.getElementById("startBtn").textContent=round>0 && ready ? "NEW ROUND 🔄" : (ready ? "START ROUND 🔥" : `WAITING… (${Object.keys(players).length}/3)`);
+}
 function hostReceive(c,m){
  if(m.type==="join"){
    if(Object.keys(players).length>=12)return;
@@ -152,22 +172,47 @@ function newRound(){
  const ids=Object.keys(players);
  const spyId=ids[Math.floor(Math.random()*ids.length)];
  secret={name:loc[0],icon:loc[1],spyId};
- broadcast({type:"round",round,location:loc[0],icon:loc[1],spyId});
+ const payload={type:"round",round,location:loc[0],icon:loc[1],spyId,players};
+ broadcast(payload);
  showRole({round,location:loc[0],icon:loc[1],spy:spyId==="host"});
+ // Host gets an easy way to start another round after everyone has seen their role.
+ document.getElementById("startBtn").disabled=false;
+ document.getElementById("startBtn").textContent="NEW ROUND 🔄";
 }
 function showRole(d){
  document.getElementById("roundNo").textContent=`ROUND ${d.round}`;
  const box=document.getElementById("roleBox"),icon=document.getElementById("roleIcon"),title=document.getElementById("roleTitle"),word=document.getElementById("roleWord"),sub=document.getElementById("roleSub");
+ const help=document.getElementById("questionHelp");
+ const hostNext=document.getElementById("hostNext");
+ hostNext.classList.toggle("hidden",!isHost);
  if(d.spy){
-   box.className="role spy";icon.textContent="🕵️";title.textContent="YOU ARE THE SPY";word.textContent="";sub.textContent="장소를 모릅니다. 다른 사람의 질문과 대답을 들으며 장소를 추리하세요!";
+   box.className="role spy";icon.textContent="🕵️";title.textContent="YOU ARE THE SPY";word.textContent="";sub.textContent="장소를 모릅니다. 질문을 들으며 장소를 추리하세요.";
+   help.innerHTML=`<div class="helpTitle">💬 Example Questions</div>
+     <div class="helpList">
+       <div>• Do you come here often?</div>
+       <div>• Would you come here alone?</div>
+       <div>• Who do you usually come with?</div>
+       <div>• What do you usually do here?</div>
+       <div>• What do you usually bring?</div>
+       <div>• Is it usually crowded?</div>
+       <div>• When do you usually come here?</div>
+       <div>• What do you like about this place?</div>
+     </div>`;
  }else{
-   box.className="role loc";icon.textContent=d.icon;title.textContent=d.location.toUpperCase();word.textContent="";sub.textContent="이 장소를 알고 있습니다. 질문을 주고받으며 스파이를 찾아보세요!";
+   box.className="role loc";icon.textContent=d.icon;title.textContent=d.location.toUpperCase();word.textContent="";sub.textContent="이 장소를 알고 있습니다. 질문을 주고받으며 스파이를 찾아보세요.";
+   help.innerHTML=`<div class="helpTitle">💬 Example Questions</div>
+     <div class="helpList">
+       <div>• Do you come here often?</div>
+       <div>• Would you come here alone?</div>
+       <div>• Who do you usually come with?</div>
+       <div>• What do you usually do here?</div>
+       <div>• What do you usually bring?</div>
+       <div>• Is it usually crowded?</div>
+       <div>• Would you want to stay here for a long time?</div>
+       <div>• When do you usually come here?</div>
+     </div>`;
  }
  show("role");
-}
-function hideRole(){
- document.getElementById("role").classList.remove("hidden");
- document.getElementById("roleBox").innerHTML=`<div class="roleIcon">🙈</div><div class="roleTitle">HIDDEN</div><p class="sub">역할을 숨겼어요.</p>`;
 }
 function showJoin(){show("join");document.getElementById("name").focus();}
 function joinRoom(){
@@ -187,6 +232,7 @@ function clientReceive(m){
  if(m.type==="state"){players=m.players;renderPlayers("lobbyPlayers");}
  if(m.type==="round"){
    const spy=m.spyId===myId;
+   players=m.players||players;
    showRole({round:m.round,location:m.location,icon:m.icon,spy});
  }
 }
