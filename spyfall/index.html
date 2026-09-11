@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>SPYFALL</title>
+<style>
+:root{--bg:#101321;--card:#191d2c;--card2:#22273a;--line:#343a50;--text:#fff;--muted:#aeb4c8;--purple:#887cff;--pink:#ff789e;--danger:#ff667d;--good:#5dd0a0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:radial-gradient(circle at 15% 0%,#30285b,transparent 32%),radial-gradient(circle at 100% 15%,#482635,transparent 30%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}
+.wrap{width:min(520px,100%);margin:auto;padding:16px;min-height:100vh}
+.top{display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:14px}
+.badge{background:rgba(255,255,255,.06);border:1px solid var(--line);padding:7px 10px;border-radius:999px;font-size:12px}
+.card{background:rgba(25,29,44,.95);border:1px solid var(--line);border-radius:26px;padding:20px;margin-top:12px;box-shadow:0 20px 60px rgba(0,0,0,.24)}
+.center{text-align:center}.big{font-size:78px}.title{font-size:25px;font-weight:950;margin:6px 0 10px}.sub{color:var(--muted);line-height:1.55;font-size:14px}
+button,input{font:inherit}button{border:0;cursor:pointer}
+.primary{width:100%;padding:15px 16px;border-radius:17px;background:var(--purple);color:#fff;font-weight:900;font-size:17px}
+.secondary{width:100%;padding:14px 16px;border-radius:17px;background:transparent;border:1px solid var(--line);color:#fff;font-weight:800}
+.field{width:100%;padding:14px;border-radius:15px;border:1px solid var(--line);background:#111524;color:#fff;text-align:center;outline:none;font-size:17px}
+.hidden{display:none!important}
+.code{font-size:42px;font-weight:1000;letter-spacing:10px;color:#bcb6ff;margin:8px 0 16px}
+.players{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0}
+.player{background:var(--card2);border:1px solid var(--line);border-radius:15px;padding:12px;text-align:left}
+.player b{display:block}.player span{font-size:12px;color:var(--muted)}
+.notice{padding:12px 13px;border-radius:15px;background:#242a40;color:#dfe2ef;line-height:1.55}
+.role{border-radius:23px;padding:32px 16px;text-align:center;margin:12px 0}
+.role.spy{background:linear-gradient(135deg,#431f2d,#261821);border:1px solid #7b3549}
+.role.loc{background:linear-gradient(135deg,#282657,#1d2737);border:1px solid #4a477f}
+.roleIcon{font-size:78px}.roleTitle{font-size:29px;font-weight:1000;margin-top:8px}
+.roleWord{font-size:25px;font-weight:950;margin-top:4px}
+.small{font-size:12px;color:var(--muted);line-height:1.5}
+.roundbar{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.tag{font-size:12px;padding:7px 10px;border-radius:999px;background:#242840;color:#d9dded}
+.rules{display:grid;gap:8px;margin-top:12px}.rule{padding:11px 12px;background:#20253a;border-radius:14px;color:#dfe2ef}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span>🕵️ SPYFALL</span><span class="badge" id="status">OFFLINE</span></div>
+
+  <section id="home" class="card">
+    <div class="center big">🕵️‍♀️❓</div>
+    <div class="center title">SPYFALL</div>
+    <p class="sub center">각자 자기 휴대폰에서 비밀 역할을 확인하고<br>질문으로 스파이를 찾아보세요.</p>
+    <button class="primary" onclick="createRoom()">CREATE ROOM</button>
+    <div style="height:8px"></div>
+    <button class="secondary" onclick="showJoin()">JOIN ROOM</button>
+  </section>
+
+  <section id="create" class="card hidden">
+    <div class="center">
+      <div class="title">ROOM CODE</div>
+      <div class="code" id="roomCode">----</div>
+      <div class="small">친구들에게 이 코드를 알려주세요.</div>
+    </div>
+    <div class="players" id="hostPlayers"></div>
+    <div class="rules">
+      <div class="rule">👥 최소 3명 · 최대 12명</div>
+      <div class="rule">🕵️ 매 라운드 스파이 1명</div>
+      <div class="rule">🔄 NEW ROUND를 누르면 단어와 스파이가 모두 바뀜</div>
+    </div>
+    <div style="height:12px"></div>
+    <button class="primary" id="startBtn" disabled onclick="newRound()">NEW ROUND 🔥</button>
+  </section>
+
+  <section id="join" class="card hidden">
+    <div class="title">📱 JOIN ROOM</div>
+    <input id="name" class="field" maxlength="10" placeholder="닉네임">
+    <div style="height:8px"></div>
+    <input id="joinCode" class="field" maxlength="4" inputmode="numeric" placeholder="4자리 방 코드">
+    <div style="height:10px"></div>
+    <button class="primary" onclick="joinRoom()">JOIN</button>
+    <p class="small center" id="joinMsg"></p>
+  </section>
+
+  <section id="lobby" class="card hidden">
+    <div class="center title">ROOM <span id="lobbyCode"></span></div>
+    <div class="players" id="lobbyPlayers"></div>
+    <div class="notice center">호스트가 게임을 시작하면<br>내 휴대폰에 비밀 역할이 나타나요.</div>
+  </section>
+
+  <section id="role" class="card hidden">
+    <div class="roundbar">
+      <span class="tag" id="roundNo">ROUND 1</span>
+      <span class="tag">SECRET 🤫</span>
+    </div>
+    <div id="roleBox" class="role loc">
+      <div class="roleIcon" id="roleIcon">📍</div>
+      <div class="roleTitle" id="roleTitle">SCHOOL</div>
+      <div class="roleWord" id="roleWord"></div>
+      <p class="sub" id="roleSub"></p>
+    </div>
+    <button class="secondary" onclick="hideRole()">HIDE MY ROLE</button>
+    <div style="height:8px"></div>
+    <button class="primary" onclick="show('lobby')">BACK TO LOBBY</button>
+  </section>
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+const locations=[
+["School","🏫"],["Restaurant","🍽️"],["Cinema","🎬"],["Airport","✈️"],["Beach","🏖️"],
+["Hospital","🏥"],["Supermarket","🛒"],["Church","⛪"],["Gym","🏋️"],["Library","📚"],
+["Amusement Park","🎢"],["Hotel","🏨"],["Kitchen","🍳"],["Bus","🚌"],["Living Room","🛋️"],
+["Classroom","🧑‍🏫"],["Birthday Party","🎂"],["Camping","🏕️"],["Train Station","🚉"],["Zoo","🦁"]
+];
+
+let peer=null,conn=null,isHost=false,myId="",myName="",room="",players={},hostConns={},round=0,secret=null;
+
+function show(id){["home","create","join","lobby","role"].forEach(x=>document.getElementById(x).classList.toggle("hidden",x!==id));}
+function makeCode(){return String(Math.floor(1000+Math.random()*9000));}
+function renderPlayers(id){
+ const el=document.getElementById(id);el.innerHTML="";
+ Object.values(players).forEach(p=>{
+   const d=document.createElement("div");d.className="player";
+   d.innerHTML=`<b>${esc(p.name)}</b><span>${p.id===myId?"YOU":"CONNECTED"}</span>`;
+   el.appendChild(d);
+ });
+}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+
+function createRoom(){
+ isHost=true;myId="host";myName="HOST";room=makeCode();
+ players={host:{id:"host",name:"HOST"}};
+ document.getElementById("roomCode").textContent=room;
+ document.getElementById("status").textContent="CONNECTING…";
+ renderPlayers("hostPlayers");show("create");
+ peer=new Peer("spyfall-simple-"+room);
+ peer.on("open",()=>{document.getElementById("status").textContent="ONLINE";});
+ peer.on("connection",c=>{
+   c.on("open",()=>{if(Object.keys(players).length>=12){c.send({type:"full"});c.close();return;}
+     hostConns[c.peer]=c;
+     c.send({type:"state",players});
+   });
+   c.on("data",m=>hostReceive(c,m));
+   c.on("close",()=>{delete hostConns[c.peer];delete players[c.peer];broadcastState();});
+ });
+}
+function broadcast(m){Object.values(hostConns).forEach(c=>{if(c.open)c.send(m);});}
+function broadcastState(){broadcast({type:"state",players});renderPlayers("hostPlayers");document.getElementById("startBtn").disabled=Object.keys(players).length<3;}
+function hostReceive(c,m){
+ if(m.type==="join"){
+   if(Object.keys(players).length>=12)return;
+   players[c.peer]={id:c.peer,name:(m.name||"PLAYER").slice(0,10)};
+   broadcastState();
+ }
+}
+function newRound(){
+ if(Object.keys(players).length<3)return;
+ round++;
+ const loc=locations[Math.floor(Math.random()*locations.length)];
+ const ids=Object.keys(players);
+ const spyId=ids[Math.floor(Math.random()*ids.length)];
+ secret={name:loc[0],icon:loc[1],spyId};
+ broadcast({type:"round",round,location:loc[0],icon:loc[1],spyId});
+ showRole({round,location:loc[0],icon:loc[1],spy:spyId==="host"});
+}
+function showRole(d){
+ document.getElementById("roundNo").textContent=`ROUND ${d.round}`;
+ const box=document.getElementById("roleBox"),icon=document.getElementById("roleIcon"),title=document.getElementById("roleTitle"),word=document.getElementById("roleWord"),sub=document.getElementById("roleSub");
+ if(d.spy){
+   box.className="role spy";icon.textContent="🕵️";title.textContent="YOU ARE THE SPY";word.textContent="";sub.textContent="장소를 모릅니다. 다른 사람의 질문과 대답을 들으며 장소를 추리하세요!";
+ }else{
+   box.className="role loc";icon.textContent=d.icon;title.textContent=d.location.toUpperCase();word.textContent="";sub.textContent="이 장소를 알고 있습니다. 질문을 주고받으며 스파이를 찾아보세요!";
+ }
+ show("role");
+}
+function hideRole(){
+ document.getElementById("role").classList.remove("hidden");
+ document.getElementById("roleBox").innerHTML=`<div class="roleIcon">🙈</div><div class="roleTitle">HIDDEN</div><p class="sub">역할을 숨겼어요.</p>`;
+}
+function showJoin(){show("join");document.getElementById("name").focus();}
+function joinRoom(){
+ myName=(document.getElementById("name").value.trim()||"PLAYER").slice(0,10);
+ room=document.getElementById("joinCode").value.trim();
+ if(!/^\d{4}$/.test(room)){document.getElementById("joinMsg").textContent="4자리 방 코드를 입력해주세요.";return;}
+ peer=new Peer();
+ peer.on("open",id=>{
+   myId=id;conn=peer.connect("spyfall-simple-"+room,{reliable:true});
+   conn.on("open",()=>{document.getElementById("status").textContent="ONLINE";document.getElementById("lobbyCode").textContent=room;show("lobby");conn.send({type:"join",name:myName});});
+   conn.on("data",clientReceive);
+ });
+ peer.on("error",()=>document.getElementById("joinMsg").textContent="방을 찾지 못했어요. 코드를 확인해주세요.");
+}
+function clientReceive(m){
+ if(m.type==="full"){show("join");document.getElementById("joinMsg").textContent="방이 가득 찼어요.";return;}
+ if(m.type==="state"){players=m.players;renderPlayers("lobbyPlayers");}
+ if(m.type==="round"){
+   const spy=m.spyId===myId;
+   showRole({round:m.round,location:m.location,icon:m.icon,spy});
+ }
+}
+</script>
+</body>
+</html>
